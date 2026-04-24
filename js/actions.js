@@ -69,10 +69,19 @@ function clearResults() {
     document.getElementById('resultsList').innerHTML = '';
     resultLayer.clearLayers();
     document.getElementById('toggleFullscreen').style.display = 'none';
+
+    const chartEl = document.getElementById('resultChart');
+    if (chartEl) chartEl.style.display = 'none';
+
+    if (window.myChart) {
+        window.myChart.destroy();
+        window.myChart = null;
+    }
 }
 
 async function runBrancher(mode) {
     const listEl = document.getElementById('resultsList');
+    const chartEl = document.getElementById('resultChart');
     const mapEl = document.getElementById('resultMap');
     const fullBtn = document.getElementById('toggleFullscreen');
 
@@ -95,6 +104,10 @@ async function runBrancher(mode) {
         fullBtn.style.display = 'none';
         listEl.style.display = 'block';
         listEl.innerHTML = `<li>${BUSY_STATE_TEXT}</li>`;
+    } else if (mode === 'chart') {
+        listEl.style.display = 'none';
+        mapEl.style.display = 'none';
+        chartEl.style.display = 'block';
     } else {
         listEl.style.display = 'none';
         mapEl.style.display = 'block';
@@ -109,6 +122,8 @@ async function runBrancher(mode) {
 
         if (mode === 'list') {
             renderList(data);
+        } else if (mode === 'chart') {
+            renderChart(data);
         } else {
             updateHeatmap(data);
         }
@@ -164,3 +179,64 @@ function updateHeatmap(data) {
         }).bindPopup(`Пересечений веток: ${val}`).addTo(resultLayer);
     });
 }
+
+function renderChart(data) {
+    const ctx = document.getElementById('resultChart').getContext('2d');
+
+    const tStart = parseInt(document.getElementById('tStart').value);
+    const tEnd = parseInt(document.getElementById('tEnd').value);
+
+    if (window.myChart) window.myChart.destroy();
+
+    const points = data.map(item => ({
+        x: item.tmrca,
+        y: item.window_sons,
+        snp: item.snp
+    }));
+
+    const pointColors = data.map((_, i) => PALETTE_SNPS[i % PALETTE_SNPS.length]);
+
+    window.myChart = new Chart(ctx, {
+        type: 'scatter',
+        data: {
+            datasets: [{
+                data: points,
+                backgroundColor: pointColors,
+                pointRadius: 8,
+                pointHoverRadius: 10,
+                borderWidth: 1,
+                borderColor: 'rgba(0,0,0,0.1)'
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                x: {
+                    type: 'linear',
+                    position: 'bottom',
+                    min: tStart,
+                    max: tEnd,
+                    title: { display: true, text: 'Год (TMRCA)' }
+                },
+                y: {
+                    beginAtZero: true,
+                    title: { display: true, text: 'Число сыновей' },
+                    ticks: { stepSize: 1 }
+                }
+            },
+            plugins: {
+                legend: { display: false },
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            const p = context.raw;
+                            return ` ${p.snp}: ${p.y} сыновей (${p.x} г.)`;
+                        }
+                    }
+                }
+            }
+        }
+    });
+}
+

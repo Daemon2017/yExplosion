@@ -24,6 +24,7 @@ def select_brancher_data(start, end, min_sons, size, t_window, min_hex, min_hex_
         sql = """
             SELECT 
                 t.snp, 
+                t.tmrca, 
                 s.centroids, 
                 cardinality(s.centroids) as hex_count,
                 (
