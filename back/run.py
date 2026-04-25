@@ -17,10 +17,11 @@ def get_explosive_branches():
         t_window = request.args.get('t_window', type=int)
         min_hex = request.args.get('min_hex', type=int)
         min_hex_son = request.args.get('min_hex_son', type=int)
+        min_grandsons = request.args.get('min_grandsons', type=int, default=0)
 
         size = request.args.get('size', '3')
 
-        required = [start, end, min_sons, t_window, min_hex, min_hex_son]
+        required = [start, end, min_sons, t_window, min_hex, min_hex_son, min_grandsons]
         if any(v is None for v in required):
             return jsonify({"error": "Missing required filters"}), 400
 
@@ -42,7 +43,8 @@ def get_explosive_branches():
             min_hex=min_hex,
             min_hex_son=min_hex_son,
             h3_list=h3_list,
-            parent_snp=parent_snp
+            parent_snp=parent_snp,
+            min_grandsons=min_grandsons
         )
 
         return jsonify(results)

@@ -92,7 +92,8 @@ async function runBrancher(mode) {
         start: document.getElementById('tStart').value,
         end: document.getElementById('tEnd').value,
         t_window: document.getElementById('tWindow').value,
-        min_hex_son: document.getElementById('mHexSon').value
+        min_hex_son: document.getElementById('mHexSon').value,
+        min_grandsons: document.getElementById('mGrandsons').value,
     });
 
     const pSnp = document.getElementById('pSnp').value.trim();
@@ -102,14 +103,17 @@ async function runBrancher(mode) {
     if (mode === 'list') {
         mapEl.style.display = 'none';
         fullBtn.style.display = 'none';
+        chartEl.style.display = 'none';
         listEl.style.display = 'block';
         listEl.innerHTML = `<li>${BUSY_STATE_TEXT}</li>`;
     } else if (mode === 'chart') {
         listEl.style.display = 'none';
         mapEl.style.display = 'none';
+        fullBtn.style.display = 'none';
         chartEl.style.display = 'block';
     } else {
         listEl.style.display = 'none';
+        chartEl.style.display = 'none';
         mapEl.style.display = 'block';
         fullBtn.style.display = 'block';
         setTimeout(() => resultMap.invalidateSize(), 100);

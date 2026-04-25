@@ -19,7 +19,8 @@ def stop_pool():
     print("PostgreSQL pool closed.")
 
 
-def select_brancher_data(start, end, min_sons, size, t_window, min_hex, min_hex_son, h3_list=None, parent_snp=None):
+def select_brancher_data(start, end, min_sons, size, t_window, min_hex, min_hex_son, min_grandsons, h3_list=None,
+                         parent_snp=None):
     with Session() as session:
         sql = """
             SELECT 
@@ -30,11 +31,13 @@ def select_brancher_data(start, end, min_sons, size, t_window, min_hex, min_hex_
                 (
                     SELECT COUNT(*) 
                     FROM tmrcas t_sons 
+                    JOIN childs c_sons ON t_sons.snp = c_sons.snp
                     JOIN snps3 s_sons ON t_sons.snp = s_sons.snp AND s_sons.size = :size
                     WHERE t_sons.snp = ANY(c.childs) 
                       AND t_sons.tmrca >= t.tmrca
                       AND t_sons.tmrca <= LEAST(t.tmrca + :t_window, :end)
                       AND cardinality(s_sons.centroids) >= :min_hex_son
+                      AND cardinality(c_sons.childs) >= :min_grandsons
                 ) as window_sons
             FROM tmrcas t
             JOIN childs c ON t.snp = c.snp
@@ -49,7 +52,8 @@ def select_brancher_data(start, end, min_sons, size, t_window, min_hex, min_hex_
             "size": str(size),
             "t_window": int(t_window),
             "min_hex": int(min_hex),
-            "min_hex_son": int(min_hex_son)
+            "min_hex_son": int(min_hex_son),
+            "min_grandsons": int(min_grandsons)
         }
 
         if parent_snp:

@@ -98,7 +98,7 @@
         <div class="section-title">1. Фильтры</div>
         <div class="row">
             <div><label>Мин. сыновей</label><input type="number" id="mSons" value="3"></div>
-            <div><label>Мин. ячеек</label><input type="number" id="mHex" value="9"></div>
+            <div><label>Мин. ячеек</label><input type="number" id="mHex" value="3"></div>
         </div>
         <div class="row">
             <div><label>TMRCA С</label><input type="number" id="tStart" value="-250"></div>
@@ -109,8 +109,12 @@
     <div class="section section-son">
         <div class="section-title">2. Критерии учета сыновей</div>
         <div class="row">
+            <div><label>Мин. внуков</label><input type="number" id="mGrandsons" value="1"></div>
+            <div><label>Мин. ячеек</label><input type="number" id="mHexSon" value="1"></div>
+        </div>
+        <div class="row">
             <div><label>Макс. время до ветвления</label><input type="number" id="tWindow" value="100"></div>
-            <div><label>Мин. ячеек</label><input type="number" id="mHexSon" value="3"></div>
+            <div></div>
         </div>
     </div>
 
@@ -137,7 +141,9 @@
                 <button id="runBtn" class="btn-action btn-list" onclick="runBrancher('list')">📋 Список</button>
             </div>
             <div class="control-col">
-                <button id="chartBtn" class="btn-action" style="background-color: #ff9800;" onclick="runBrancher('chart')">📊 График</button>
+                <button id="chartBtn" class="btn-action" style="background-color: #ff9800;"
+                        onclick="runBrancher('chart')">📊 График
+                </button>
             </div>
             <div class="control-col">
                 <label>Мин. пересекающихся SNP</label>
