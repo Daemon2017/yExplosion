@@ -16,7 +16,7 @@ function initMaps() {
         if (selectedH3Indices.has(h3Index)) {
             selectedH3Indices.delete(h3Index);
         } else {
-            if (selectedH3Indices.size >= 20) return;
+            if (selectedH3Indices.size >= 100) return;
             selectedH3Indices.add(h3Index);
         }
         drawSelection();
