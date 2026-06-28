@@ -32,7 +32,7 @@ def select_brancher_data(start, end, min_sons, size, t_window, min_hex, min_hex_
                     SELECT COUNT(*) 
                     FROM tmrcas t_sons 
                     JOIN childs c_sons ON t_sons.snp = c_sons.snp
-                    JOIN snps3 s_sons ON t_sons.snp = s_sons.snp AND s_sons.size = :size
+                    JOIN grid s_sons ON t_sons.snp = s_sons.snp AND s_sons.size = :size
                     WHERE t_sons.snp = ANY(c.childs) 
                       AND t_sons.tmrca >= t.tmrca
                       AND t_sons.tmrca <= LEAST(t.tmrca + :t_window, :end)
@@ -41,7 +41,7 @@ def select_brancher_data(start, end, min_sons, size, t_window, min_hex, min_hex_
                 ) as window_sons
             FROM tmrcas t
             JOIN childs c ON t.snp = c.snp
-            INNER JOIN snps3 s ON t.snp = s.snp AND s.size = :size
+            INNER JOIN grid s ON t.snp = s.snp AND s.size = :size
             WHERE t.tmrca BETWEEN :start AND :end
         """
 
