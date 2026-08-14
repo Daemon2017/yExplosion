@@ -38,11 +38,13 @@ def select_brancher_data(start, end, min_sons, size, t_window, min_hex, min_hex_
                       AND t_sons.tmrca <= LEAST(t.tmrca + :t_window, :end)
                       AND cardinality(s_sons.centroids) >= :min_hex_son
                       AND cardinality(c_sons.childs) >= :min_grandsons
+                      AND s_sons.is_confirmed = TRUE 
                 ) as window_sons
             FROM tmrcas t
             JOIN childs c ON t.snp = c.snp
             INNER JOIN grid s ON t.snp = s.snp AND s.size = :size
-            WHERE t.tmrca BETWEEN :start AND :end
+            WHERE s.is_confirmed = TRUE 
+              AND t.tmrca BETWEEN :start AND :end
         """
 
         params = {
