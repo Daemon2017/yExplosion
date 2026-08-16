@@ -1,0 +1,58 @@
+ body { font-family: -apple-system, system-ui, sans-serif; background: #f4f7f9; display: flex; justify-content: center; padding: 20px; }
+        #app-container { width: 100%; max-width: 600px; background: white; padding: 25px; border-radius: 12px; box-shadow: 0 8px 24px rgba(0,0,0,0.1); }
+        h2 { color: #007bff; margin-top: 0; display: flex; align-items: center; gap: 10px; }
+
+        .section { border: 1px solid #e1e4e8; border-radius: 8px; padding: 15px; margin-bottom: 15px; }
+        .section-title { font-size: 11px; font-weight: bold; color: #888; text-transform: uppercase; margin-bottom: 12px; }
+        .row { display: flex; gap: 10px; margin-bottom: 10px; }
+        .row > div { flex: 1; }
+
+        label { display: block; font-size: 13px; margin-bottom: 4px; color: #444; font-weight: 600; }
+        input, select { width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 6px; box-sizing: border-box; font-size: 14px; color: #333; }
+
+        #miniMap, #resultMap { height: 280px; border-radius: 8px; border: 1px solid #ddd; margin-bottom: 10px; background: #f0f0f0; }
+
+        .fullscreen-map {
+            position: fixed !important;
+            top: 0; left: 0;
+            width: 100vw !important;
+            height: 100vh !important;
+            z-index: 9999;
+            margin: 0 !important;
+            border-radius: 0 !important;
+        }
+        #toggleFullscreen {
+            padding: 4px 8px;
+            font-size: 11px;
+            cursor: pointer;
+            background: #fff;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+        #resultChart {
+            max-height: 400px !important;
+            width: 100% !important;
+            margin-top: 15px;
+        }
+
+        .controls-grid { display: flex; gap: 15px; align-items: flex-end; }
+        .control-col { flex: 1; display: flex; flex-direction: column; }
+
+        .btn-action {
+            height: 48px; border: none; border-radius: 8px; font-size: 14px; font-weight: bold;
+            cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px;
+            color: white; transition: opacity 0.2s;
+        }
+        .btn-list { background-color: #448aff; }
+        .btn-map { background-color: #58a65c; }
+        .btn-action:hover { opacity: 0.9; }
+        .btn-action:disabled { background-color: #ccc; cursor: not-allowed; }
+
+        #resultsList { padding: 0; list-style: none; max-height: 400px; overflow-y: auto; margin: 0; }
+        #resultsList li { padding: 12px; border-bottom: 1px solid #f0f0f0; display: flex; justify-content: space-between; align-items: center; font-family: monospace; font-size: 14px; }
+
+        .section-grid { background: #f8f9fa; border-color: #d1d4d7; }
+        .section-son { border-left: 4px solid #28a745; background: #f8fff9; }
+        .section-results { border-top: 2px solid #007bff; background: #fff; min-height: 100px; position: relative; }
+
+        .optional-badge { font-size: 10px; background: #e8f0fe; color: #1a73e8; padding: 2px 6px; border-radius: 4px; margin-left: 5px; }
