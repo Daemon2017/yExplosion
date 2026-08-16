@@ -19,97 +19,86 @@
     <script src="js/actions.js"></script>
 </head>
 <body>
-
-<div id="app-container">
-    <h2>💥 yExplosion</h2>
-
-    <div class="section section-grid">
-        <div class="section-title">0. Ячеистость карты</div>
-        <select id="gridSize" onchange="clearSelection(); clearResults();">
-            <option value="1">1</option>
-            <option value="2">2</option>
-            <option value="3" selected>3</option>
-            <option value="4">4</option>
-            <option value="5">5</option>
-        </select>
-    </div>
-
-    <div class="section">
-        <div class="section-title">1. Фильтры</div>
-        <div class="row">
-            <div><label>Мин. сыновей</label><input type="number" id="mSons" value="3"></div>
-            <div><label>Мин. ячеек</label><input type="number" id="mHex" value="3"></div>
-        </div>
-        <div class="row">
-            <div><label>TMRCA С</label><input type="number" id="tStart" value="-250"></div>
-            <div><label>TMRCA По</label><input type="number" id="tEnd" value="250"></div>
-        </div>
-    </div>
-
-    <div class="section section-son">
-        <div class="section-title">2. Критерии учета сыновей</div>
-        <div class="row">
-            <div><label>Мин. внуков</label><input type="number" id="mGrandsons" value="1"></div>
-            <div><label>Мин. ячеек</label><input type="number" id="mHexSon" value="1"></div>
-        </div>
-        <div class="row">
-            <div><label>Макс. время до ветвления</label><input type="number" id="tWindow" value="100"></div>
-            <div></div>
-        </div>
-    </div>
-
-    <div class="section">
-        <div class="section-title">3. География <span class="optional-badge">Опционально</span></div>
-        <label>Искать только по SNP выбранных ячеек</label>
-        <div id="miniMap"></div>
-        <button type="button" onclick="clearSelection()"
-                style="padding: 8px; cursor: pointer; width: 100%; border: 1px solid #ccc; background: #fff; border-radius: 4px; font-size: 13px;">
-            Очистить
-        </button>
-    </div>
-
-    <div class="section">
-        <div class="section-title">4. Топология <span class="optional-badge">Опционально</span></div>
-        <label>Искать только по потомкам выбранного SNP</label>
-        <input type="text" id="pSnp" placeholder="Напр: R-CTS1211">
-    </div>
-
-    <div class="section">
-        <div class="section-title">5. Формат вывода</div>
-        <div class="controls-grid">
-            <div class="control-col">
-                <button id="runBtn" class="btn-action btn-list" onclick="runBrancher('list')">📋 Список</button>
-            </div>
-            <div class="control-col">
-                <button id="chartBtn" class="btn-action" style="background-color: #ff9800;"
-                        onclick="runBrancher('chart')">📊 График
-                </button>
-            </div>
-            <div class="control-col">
-                <label>Мин. пересекающихся SNP</label>
-                <div style="display: flex; gap: 5px;">
-                    <input type="number" id="minOverlap" value="2" style="flex: 0.4; text-align: center; height: 48px;">
-                    <button id="mapBtn" class="btn-action btn-map" style="flex: 1;" onclick="runBrancher('map')">🌍
-                        Карта
+    <main id="main-layout">
+        <section id="settings-panel">
+            <header class="panel-header">
+                <h2>💥 yExplosion</h2>
+            </header>
+            <div class="settings-viewport">
+                <div class="section section-grid">
+                    <div class="section-title">0. Ячеистость карты</div>
+                    <select id="gridSize" onchange="clearSelection(); clearResults();">
+                        <option value="1">1</option>
+                        <option value="2">2</option>
+                        <option value="3" selected>3</option>
+                        <option value="4">4</option>
+                        <option value="5">5</option>
+                    </select>
+                </div>
+                <div class="section">
+                    <div class="section-title">1. Фильтры</div>
+                    <div class="row">
+                        <div><label>Мин. сыновей</label><input type="number" id="mSons" value="3"></div>
+                        <div><label>Мин. ячеек</label><input type="number" id="mHex" value="3"></div>
+                    </div>
+                    <div class="row">
+                        <div><label>TMRCA С</label><input type="number" id="tStart" value="-250"></div>
+                        <div><label>TMRCA По</label><input type="number" id="tEnd" value="250"></div>
+                    </div>
+                </div>
+                <div class="section section-son">
+                    <div class="section-title">2. Критерии учета сыновей</div>
+                    <div class="row">
+                        <div><label>Мин. внуков</label><input type="number" id="mGrandsons" value="1"></div>
+                        <div><label>Мин. ячеек</label><input type="number" id="mHexSon" value="1"></div>
+                    </div>
+                    <div class="row">
+                        <div><label>Макс. время до ветвления</label><input type="number" id="tWindow" value="100"></div>
+                        <div></div>
+                    </div>
+                </div>
+                <div class="section">
+                    <div class="section-title">3. География <span class="optional-badge">Опционально</span></div>
+                    <label>Искать только по SNP выбранных ячеек</label>
+                    <div id="miniMap"></div>
+                    <button type="button" class="btn-secondary" onclick="clearSelection()">
+                        Очистить
                     </button>
                 </div>
+                <div class="section">
+                    <div class="section-title">4. Топология <span class="optional-badge">Опционально</span></div>
+                    <label>Искать только по потомкам выбранного SNP</label>
+                    <input type="text" id="pSnp" placeholder="Напр: R-CTS1211">
+                </div>
             </div>
-        </div>
-    </div>
-
-    <div class="section section-results">
-        <div class="section-title" style="display: flex; justify-content: space-between; align-items: center;">
-            6. Результаты
-            <button id="toggleFullscreen" onclick="toggleMapFullscreen()" style="display: none;">На весь экран ⛶
-            </button>
-        </div>
-        <div id="resultMap" style="display: none;"></div>
-        <canvas id="resultChart" style="display: none; width: 100%; height: 300px;"></canvas>
-        <ul id="resultsList">
-            <li style="color: #888; justify-content: center;">Настройте фильтры и запустите поиск</li>
-        </ul>
-    </div>
-</div>
-
+        </section>
+        <section id="main-panel">
+            <div id="results-viewport" class="section-results">
+                <header class="results-title-area">
+                    <div class="section-title-alt">6. Результаты</div>
+                    <button id="toggleFullscreen" onclick="toggleMapFullscreen()" style="display: none;">
+                        На весь экран ⛶
+                    </button>
+                </header>
+                <div id="resultMap" style="display: none;"></div>
+                <canvas id="resultChart" style="display: none; width: 100%; height: 300px;"></canvas>
+                <ul id="resultsList">
+                    <li class="list-placeholder">Настройте фильтры и запустите поиск</li>
+                </ul>
+            </div>
+            <footer id="controls-bar">
+                <div class="controls-title">5. Формат вывода:</div>
+                <div class="controls-action-grid">
+                    <button id="runBtn" class="btn-action btn-list" onclick="runBrancher('list')">📋 Список</button>
+                    <button id="chartBtn" class="btn-action btn-orange" onclick="runBrancher('chart')">📊 График</button>
+                    <div class="overlap-group">
+                        <label for="minOverlap" class="inline-label">Мин. пересекающихся SNP</label>
+                        <input type="number" id="minOverlap" value="2" class="input-overlap">
+                        <button id="mapBtn" class="btn-action btn-map" onclick="runBrancher('map')">🌍 Карта</button>
+                    </div>
+                </div>
+            </footer>
+        </section>
+    </main>
 </body>
 </html>
