@@ -28,6 +28,7 @@ def select_brancher_data(start, end, min_sons, size, t_window, min_hex, min_hex_
                 t.tmrca, 
                 s.centroids, 
                 cardinality(s.centroids) as hex_count,
+                c_parent.snp as parent_snp,
                 (
                     SELECT COUNT(*) 
                     FROM tmrcas t_sons 
@@ -43,6 +44,7 @@ def select_brancher_data(start, end, min_sons, size, t_window, min_hex, min_hex_
             FROM tmrcas t
             JOIN childs c ON t.snp = c.snp
             INNER JOIN grid s ON t.snp = s.snp AND s.size = :size
+            LEFT JOIN childs c_parent ON t.snp = ANY(c_parent.childs) 
             WHERE s.is_confirmed = TRUE 
               AND t.tmrca BETWEEN :start AND :end
         """

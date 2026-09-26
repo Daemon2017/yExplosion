@@ -1,5 +1,14 @@
 document.addEventListener('DOMContentLoaded', () => {
     initMaps();
+
+    const showWavesCheckbox = document.getElementById('showWaves');
+    if (showWavesCheckbox) {
+        showWavesCheckbox.addEventListener('change', () => {
+            if (window.myChart) {
+                window.myChart.update();
+            }
+        });
+    }
 });
 
 function initMaps() {
@@ -184,6 +193,14 @@ function updateHeatmap(data) {
     });
 }
 
+function getSnpJitter(snpName) {
+    let hash = 0;
+    for (let i = 0; i < snpName.length; i++) {
+        hash = snpName.charCodeAt(i) + ((hash << 5) - hash);
+    }
+    return ((Math.abs(hash) % 100) / 100) * 0.5 - 0.25;
+}
+
 function renderChart(data) {
     const ctx = document.getElementById('resultChart').getContext('2d');
 
@@ -192,13 +209,55 @@ function renderChart(data) {
 
     if (window.myChart) window.myChart.destroy();
 
-    const points = data.map(item => ({
-        x: item.tmrca,
-        y: item.window_sons,
-        snp: item.snp
-    }));
+    const points = [];
+    const pointColors = [];
+    const snpPositionsMap = new Map();
 
-    const pointColors = data.map((_, i) => PALETTE_SNPS[i % PALETTE_SNPS.length]);
+    data.forEach((item, i) => {
+        const color = PALETTE_SNPS[i % PALETTE_SNPS.length];
+        const jitteredY = item.window_sons + getSnpJitter(item.snp);
+        points.push({
+            x: item.tmrca,
+            y: jitteredY,
+            real_y: item.window_sons,
+            snp: item.snp,
+            parent_snp: item.parent_snp
+        });
+        pointColors.push(color);
+        snpPositionsMap.set(item.snp, {
+            x: item.tmrca,
+            y: jitteredY,
+            color: color
+        });
+    });
+
+    const waveLinesPlugin = {
+        id: 'waveLines',
+        beforeDatasetsDraw(chart) {
+            const checkbox = document.getElementById('showWaves');
+            const isWavesEnabled = checkbox ? checkbox.checked : true;
+            if (!isWavesEnabled) return;
+            const { ctx, scales: { x: xScale, y: yScale } } = chart;
+            const currentPoints = chart.data.datasets[0].data;
+            ctx.save();
+            ctx.lineWidth = 1.2;
+            currentPoints.forEach((point) => {
+                if (point.parent_snp && snpPositionsMap.has(point.parent_snp)) {
+                    const parent = snpPositionsMap.get(point.parent_snp);
+                    const startX = xScale.getPixelForValue(parent.x);
+                    const startY = yScale.getPixelForValue(parent.y);
+                    const endX = xScale.getPixelForValue(point.x);
+                    const endY = yScale.getPixelForValue(point.y);
+                    ctx.beginPath();
+                    ctx.strokeStyle = parent.color;
+                    ctx.moveTo(startX, startY);
+                    ctx.lineTo(endX, endY);
+                    ctx.stroke();
+                }
+            });
+            ctx.restore();
+        }
+    };
 
     window.myChart = new Chart(ctx, {
         type: 'scatter',
@@ -212,6 +271,7 @@ function renderChart(data) {
                 borderColor: 'rgba(0,0,0,0.1)'
             }]
         },
+        plugins: [waveLinesPlugin],
         options: {
             responsive: true,
             maintainAspectRatio: false,
@@ -235,7 +295,11 @@ function renderChart(data) {
                     callbacks: {
                         label: function(context) {
                             const p = context.raw;
-                            return ` ${p.snp}: ${p.y} сыновей (${p.x} г.)`;
+                            let label = ` ${p.snp}: ${p.real_y} сыновей (${p.x} г.)`;
+                            if (p.parent_snp) {
+                                label += ` | Род: ${p.parent_snp}`;
+                            }
+                            return label;
                         }
                     }
                 }

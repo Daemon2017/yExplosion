@@ -94,6 +94,12 @@
                     <div class="overlap-group">
                         <label for="minOverlap" class="inline-label">Мин. пересекающихся SNP</label>
                         <input type="number" id="minOverlap" value="2" class="input-overlap">
+                        <div style="display: flex; align-items: center; gap: 8px; background: #e9ecef; padding: 0 12px; border-radius: 6px; border: 1px solid #ced4da; height: 40px;">
+                            <input type="checkbox" id="showWaves" checked>
+                            <label for="showWaves" style="margin: 0; font-size: 11px; color: #555; white-space: nowrap; text-transform: uppercase; font-weight: bold; cursor: pointer; user-select: none;">
+                                Показывать связи
+                            </label>
+                        </div>
                         <button id="mapBtn" class="btn-action btn-map" onclick="runBrancher('map')">🌍 Карта</button>
                     </div>
                 </div>

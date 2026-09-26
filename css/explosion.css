@@ -100,6 +100,16 @@ input, select {
     height: 36px;
 }
 
+input[type="checkbox"] {
+    width: 16px !important;
+    height: 16px !important;
+    min-width: 16px;
+    padding: 0;
+    margin: 0;
+    cursor: pointer;
+    accent-color: #007bff;
+}
+
 #miniMap {
     height: 200px; 
     border-radius: 8px; 
