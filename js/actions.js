@@ -206,12 +206,14 @@ function renderChart(data) {
 
     const tStart = parseInt(document.getElementById('tStart').value);
     const tEnd = parseInt(document.getElementById('tEnd').value);
+    const showWaves = document.getElementById('showWaves') ? document.getElementById('showWaves').checked : true;
 
     if (window.myChart) window.myChart.destroy();
 
     const points = [];
     const pointColors = [];
     const snpPositionsMap = new Map();
+    const snpChildrenMap = new Map();
 
     data.forEach((item, i) => {
         const color = PALETTE_SNPS[i % PALETTE_SNPS.length];
@@ -221,26 +223,54 @@ function renderChart(data) {
             y: jitteredY,
             real_y: item.window_sons,
             snp: item.snp,
-            parent_snp: item.parent_snp
+            parent_snp: item.parent_snp,
+            baseColor: color
         });
-        pointColors.push(color);
         snpPositionsMap.set(item.snp, {
             x: item.tmrca,
             y: jitteredY,
-            color: color
+            color: color,
+            parent_snp: item.parent_snp
         });
+        if (item.parent_snp) {
+            if (!snpChildrenMap.has(item.parent_snp)) {
+                snpChildrenMap.set(item.parent_snp, []);
+            }
+            snpChildrenMap.get(item.parent_snp).push(item.snp);
+        }
     });
+
+    function getFullSubtree(targetSnp) {
+        const connectedSnps = new Set();
+        if (!targetSnp) return connectedSnps;
+        let currentParent = snpPositionsMap.get(targetSnp)?.parent_snp;
+        while (currentParent) {
+            connectedSnps.add(currentParent);
+            currentParent = snpPositionsMap.get(currentParent)?.parent_snp;
+        }
+        function collectDescendants(snp) {
+            connectedSnps.add(snp);
+            const children = snpChildrenMap.get(snp) || [];
+            children.forEach(child => {
+                if (!connectedSnps.has(child)) {
+                    collectDescendants(child);
+                }
+            });
+        }
+        collectDescendants(targetSnp);
+        return connectedSnps;
+    }
 
     const waveLinesPlugin = {
         id: 'waveLines',
         beforeDatasetsDraw(chart) {
             const checkbox = document.getElementById('showWaves');
-            const isWavesEnabled = checkbox ? checkbox.checked : true;
-            if (!isWavesEnabled) return;
+            if (checkbox && !checkbox.checked) return;
             const { ctx, scales: { x: xScale, y: yScale } } = chart;
             const currentPoints = chart.data.datasets[0].data;
+            const activeTree = getFullSubtree(hoveredSnp);
+            const hasActiveHighlight = activeTree.size > 0;
             ctx.save();
-            ctx.lineWidth = 1.2;
             currentPoints.forEach((point) => {
                 if (point.parent_snp && snpPositionsMap.has(point.parent_snp)) {
                     const parent = snpPositionsMap.get(point.parent_snp);
@@ -249,9 +279,15 @@ function renderChart(data) {
                     const endX = xScale.getPixelForValue(point.x);
                     const endY = yScale.getPixelForValue(point.y);
                     ctx.beginPath();
-                    ctx.strokeStyle = parent.color;
                     ctx.moveTo(startX, startY);
                     ctx.lineTo(endX, endY);
+                    if (hasActiveHighlight && activeTree.has(point.snp) && activeTree.has(point.parent_snp)) {
+                        ctx.lineWidth = 3.0;
+                        ctx.strokeStyle = parent.color;
+                    } else {
+                        ctx.lineWidth = 1.0;
+                        ctx.strokeStyle = hasActiveHighlight ? 'rgba(200, 200, 200, 0.15)' : parent.color + '80';
+                    }
                     ctx.stroke();
                 }
             });
@@ -264,9 +300,20 @@ function renderChart(data) {
         data: {
             datasets: [{
                 data: points,
-                backgroundColor: pointColors,
-                pointRadius: 8,
-                pointHoverRadius: 10,
+                backgroundColor: function(context) {
+                    const point = context.raw;
+                    if (!point) return 'rgba(0,0,0,0.1)';
+                    const activeTree = getFullSubtree(hoveredSnp);
+                    if (activeTree.size === 0) return point.baseColor;
+                    return activeTree.has(point.snp) ? point.baseColor : 'rgba(220, 220, 220, 0.2)';
+                },
+                pointRadius: function(context) {
+                    const point = context.raw;
+                    if (!point) return 8;
+                    const activeTree = getFullSubtree(hoveredSnp);
+                    return (activeTree.size > 0 && activeTree.has(point.snp)) ? 11 : 7;
+                },
+                pointHoverRadius: 12,
                 borderWidth: 1,
                 borderColor: 'rgba(0,0,0,0.1)'
             }]
@@ -275,6 +322,21 @@ function renderChart(data) {
         options: {
             responsive: true,
             maintainAspectRatio: false,
+            onHover: (event, activeElements) => {
+                if (activeElements && activeElements.length > 0) {
+                    const index = activeElements[0].index;
+                    const snp = window.myChart.data.datasets[0].data[index].snp;
+                    if (hoveredSnp !== snp) {
+                        hoveredSnp = snp;
+                        window.myChart.update('none');
+                    }
+                } else {
+                    if (hoveredSnp !== null) {
+                        hoveredSnp = null;
+                        window.myChart.update('none');
+                    }
+                }
+            },
             scales: {
                 x: {
                     type: 'linear',
@@ -292,6 +354,9 @@ function renderChart(data) {
             plugins: {
                 legend: { display: false },
                 tooltip: {
+                    position: 'nearest',
+                    xAlign: 'center',
+                    yAlign: 'top',
                     callbacks: {
                         label: function(context) {
                             const p = context.raw;

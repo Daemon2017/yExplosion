@@ -42,6 +42,8 @@ let resultMap;
 let selectionLayer = L.layerGroup();
 let resultLayer = L.featureGroup();
 
+let hoveredSnp = null;
+
 let selectedH3Indices = new Set();
 
 const BUSY_STATE_TEXT = "Анализ...";
